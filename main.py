@@ -1,3 +1,4 @@
+# TODO: repair asynchronous, add comments to all files, connect DB, add README
 from bot.bot_manager import BotManager
 
 if __name__ == "__main__":

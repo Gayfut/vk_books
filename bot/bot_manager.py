@@ -1,4 +1,3 @@
-# TODO: repair asynchronous, add comments to all files, connect DB
 import asyncio
 
 from vk_api import VkApi
