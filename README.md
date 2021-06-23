@@ -6,7 +6,7 @@
 
 ## **Stack**
 ### Python3
-#### 1. Bot Manager:
+#### 1. Bot Manager
 ##### * Asyncio
 ##### * Vk_api
 #### 2. Bot
