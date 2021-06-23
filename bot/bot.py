@@ -1,3 +1,4 @@
+"""file for control bot and his specification"""
 from aiovk import TokenSession, API
 from aiovk.longpoll import UserLongPoll
 from vk_api.utils import get_random_id
@@ -10,21 +11,26 @@ from .bot_settings import vk_token, vk_bot_password
 
 
 class VkBot:
+    """Class for Vk Bot. Control him and his specification"""
 
+    # Users success passed auth
     ACCESS_USERS = []
 
     def __init__(self, user_id):
         vk_session = TokenSession(access_token=vk_token)
-        self.vk_api = API(vk_session)
-        self.vk_longpoll = UserLongPoll(self.vk_api, mode=2)
-        self.user_id = user_id
+        self.__vk_api = API(vk_session)
+        self.__vk_longpoll = UserLongPoll(self.__vk_api, mode=2)
+
+        self.__user_id = user_id
 
     async def start_bot(self, user_id):
+        """start bot work"""
         await self.__send_welcome(user_id)
         await self.__start_messaging()
 
     async def __start_messaging(self):
-        async for event in self.vk_longpoll.iter():
+        """listen vk server and choose next step"""
+        async for event in self.__vk_longpoll.iter():
             if event[0] == 4 and event[2] == (1 or 17):
                 print(
                     "Name: "
@@ -56,8 +62,9 @@ class VkBot:
                     continue
 
     async def __auth(self, event):
+        """auth user for access"""
         if event[3] not in self.ACCESS_USERS:
-            await self.vk_api.messages.send(
+            await self.__vk_api.messages.send(
                 user_id=event[3],
                 random_id=get_random_id(),
                 message="Пожалуйста, введите код доступа.",
@@ -68,11 +75,12 @@ class VkBot:
             return True
 
     async def __check_password(self):
-        async for event in self.vk_longpoll.iter():
+        """check correct user password or not"""
+        async for event in self.__vk_longpoll.iter():
             if event[0] == 4 and event[2] == (1 or 17):
                 if event[5] == vk_bot_password:
                     self.ACCESS_USERS.append(event[3])
-                    await self.vk_api.messages.send(
+                    await self.__vk_api.messages.send(
                         user_id=event[3],
                         random_id=get_random_id(),
                         message="Доступ получен.",
@@ -80,7 +88,7 @@ class VkBot:
                     check_status = True
                     break
                 else:
-                    await self.vk_api.messages.send(
+                    await self.__vk_api.messages.send(
                         user_id=event[3],
                         random_id=get_random_id(),
                         message="В доступе отказано.",
@@ -91,21 +99,24 @@ class VkBot:
         return check_status
 
     async def __send_welcome(self, user_id):
-        await self.vk_api.messages.send(
+        """send welcome to user"""
+        await self.__vk_api.messages.send(
             user_ids=user_id,
             random_id=get_random_id(),
             message="Здравствуйте, " + await self.__get_name(user_id) + ".",
         )
 
     async def __send_question_about_source(self, event):
-        await self.vk_api.messages.send(
+        """send question about source for search"""
+        await self.__vk_api.messages.send(
             user_id=event[3],
             random_id=get_random_id(),
             message="Пожалуйста, выберите лишь один источник.\n(напишите цифру от 1 до 9)\n\n1 - Любая сфера; самая большая база (нестабильный).\n2 - Любая сфера; большая база\n3 - Любая сфера; средняя база\n4 - Современное искусство; маленькая база.\n5 - Любая сфера; средняя база; только на английском.\n6 - Сфера IT; средняя база; только на английском.\n7 - Сфера IT; средняя база; только на русском.\n8 - Сфера IT; средняя база.\n9 - Сфера физики, математика, IT; средняя база.",
         )
 
     async def __get_source_number(self):
-        async for event in self.vk_longpoll.iter():
+        """return user chosen source for search"""
+        async for event in self.__vk_longpoll.iter():
             if (
                 event[0] == 4
                 and event[2] == 1
@@ -114,7 +125,7 @@ class VkBot:
                 source_number = int(event[5])
                 break
             elif event[0] == 4 and event[2] == 1:
-                await self.vk_api.messages.send(
+                await self.__vk_api.messages.send(
                     user_id=event[3],
                     random_id=get_random_id(),
                     message="Пожалуйста, напишите цифру от 1 до 9.",
@@ -124,14 +135,16 @@ class VkBot:
         return source_number
 
     async def __send_question_about_title(self, event):
-        await self.vk_api.messages.send(
+        """send question about book title"""
+        await self.__vk_api.messages.send(
             user_id=event[3],
             random_id=get_random_id(),
             message="Пожалуйста, введите название книги, которую необходимо найти.",
         )
 
     async def __get_title(self):
-        async for event in self.vk_longpoll.iter():
+        """return user book title"""
+        async for event in self.__vk_longpoll.iter():
             if event[0] == 4 and event[2] == 1:
                 title = event[5]
                 break
@@ -139,14 +152,16 @@ class VkBot:
         return title
 
     async def __send_question_about_language(self, event):
-        await self.vk_api.messages.send(
+        """send question about language of book"""
+        await self.__vk_api.messages.send(
             user_id=event[3],
             random_id=get_random_id(),
             message="Пожалуйста, выберите язык.\n(Только en или ru)",
         )
 
     async def __get_language(self):
-        async for event in self.vk_longpoll.iter():
+        """return user chosen language for book"""
+        async for event in self.__vk_longpoll.iter():
             if event[0] == 4 and event[2] == 1:
                 language = event[5]
                 break
@@ -154,8 +169,9 @@ class VkBot:
         return language
 
     async def __send_info_about_request(self, event, title, source_number, language=None):
+        """send all info about user search request"""
         if language is not None:
-            await self.vk_api.messages.send(
+            await self.__vk_api.messages.send(
                 user_id=event[3],
                 random_id=get_random_id(),
                 message="Источник - "
@@ -167,7 +183,7 @@ class VkBot:
                 + "\nПожалуйста, ожидайте...",
             )
         else:
-            await self.vk_api.messages.send(
+            await self.__vk_api.messages.send(
                 user_id=event[3],
                 random_id=get_random_id(),
                 message="Источник - "
@@ -178,6 +194,7 @@ class VkBot:
             )
 
     async def __send_books_info(self, event, title, source_number, language="ru"):
+        """scraper and send scrapped info about books"""
         if source_number == 1:
             scraper = SiteScraper1()
             books_info = scraper.start_parse(title, language)
@@ -192,7 +209,7 @@ class VkBot:
             books_info = scraper.start_parse(title)
 
         for book_info in books_info:
-            await self.vk_api.messages.send(
+            await self.__vk_api.messages.send(
                 user_id=event[3],
                 random_id=get_random_id(),
                 message="Название - "
@@ -206,14 +223,16 @@ class VkBot:
             )
 
     async def __send_info_about_functions(self, event):
-        await self.vk_api.messages.send(
+        """send info about all bot functions"""
+        await self.__vk_api.messages.send(
             user_id=event[3],
             random_id=get_random_id(),
             message='Для поиска книги, пожалуйста, напишите "Поиск"',
         )
 
     async def __get_name(self, user_id):
-        info = await self.vk_api.users.get(user_ids=user_id)
+        """return user first name"""
+        info = await self.__vk_api.users.get(user_ids=user_id)
         user_name = info[0]["first_name"]
 
         return user_name

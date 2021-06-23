@@ -1,3 +1,4 @@
+"""file for control SiteScraper2 and his specification"""
 from requests_html import AsyncHTMLSession, HTMLSession
 from bs4 import BeautifulSoup
 
@@ -10,6 +11,7 @@ from .scraper_settings import (
 
 
 class SiteScraper2(BaseSiteScraper):
+    """Class for 2 site scraper"""
 
     LINK_TO_SITE = None
     LINK_TO_SEARCH_PAGE = None
@@ -29,6 +31,7 @@ class SiteScraper2(BaseSiteScraper):
         self._scraper_number = 2
 
     def _get_search_page(self, search_query, language):
+        """return search page in lxml format"""
         self._set_link_to_site(search_query, language)
 
         scraper = HTMLSession()
@@ -38,6 +41,7 @@ class SiteScraper2(BaseSiteScraper):
         return search_page
 
     def _set_link_to_site(self, search_query, language):
+        """set link to scraping site"""
         search_query = SiteScraper2._get_correct_search_query(search_query)
 
         if language == "ru":
@@ -56,6 +60,7 @@ class SiteScraper2(BaseSiteScraper):
             )
 
     def _get_books_elements(self, search_page):
+        """return books elements from scraping page"""
         books_elements = search_page.find_all(
             self.BOOK_POST_ELEMENT, class_=self.BOOK_POST_SELECTOR
         )
@@ -64,6 +69,7 @@ class SiteScraper2(BaseSiteScraper):
 
     @staticmethod
     async def _get_page_with_book_info(link_to_book):
+        """return page with book info in lxml format"""
         session = AsyncHTMLSession()
         response = await session.get(link_to_book)
         response_text = response.text

@@ -1,3 +1,4 @@
+"""file for control site scraper pattern and his specification"""
 import asyncio
 import aiohttp
 import json
@@ -8,6 +9,7 @@ from .scraper_settings import scraper_options_dir
 
 
 class BaseSiteScraper:
+    """Pattern for Site Scraper"""
 
     LINK_TO_SITE = None
     LINK_TO_SEARCH_PAGE = None
@@ -26,6 +28,7 @@ class BaseSiteScraper:
         self._scraper_number = None
 
     def start_parse(self, search_query, language):
+        """start scraping process"""
         self._set_options()
         search_page = self._get_search_page(search_query, language)
         books_elements = self._get_books_elements(search_page)
@@ -36,6 +39,7 @@ class BaseSiteScraper:
         return books_info
 
     def _set_options(self):
+        """set options for scraper"""
         with open(
             scraper_options_dir
             + "/scraper"
@@ -58,6 +62,7 @@ class BaseSiteScraper:
         self.DOWNLOAD_LINK_SELECTOR = scraper_options["download_link_selector"]
 
     def _get_search_page(self, search_query, language):
+        """return search page in lxml format"""
         self._set_link_to_site(search_query, language)
 
         check_success = False
@@ -72,19 +77,23 @@ class BaseSiteScraper:
         return search_page
 
     def _set_link_to_site(self, search_query, language):
+        """set link to scraping site"""
         pass
 
     @staticmethod
     def _get_correct_search_query(search_query):
+        """return correct search query for correct request"""
         search_query_list = search_query.split()
         search_query = "+".join(search_query_list)
 
         return search_query
 
     def _get_books_elements(self, search_page):
+        """return books elements from scraping page"""
         pass
 
     def _get_links_to_books(self, books_elements):
+        """return links to books from elements for scraping info"""
         links_of_books = []
 
         for book_element in books_elements:
@@ -95,6 +104,7 @@ class BaseSiteScraper:
         return links_of_books
 
     def __get_pages_with_book_info(self, links_to_books):
+        """return pages with book info for scraping"""
         async_loop = asyncio.get_event_loop()
         coroutines = [
             self._get_page_with_book_info(link_to_book)
@@ -109,6 +119,7 @@ class BaseSiteScraper:
 
     @staticmethod
     async def _get_page_with_book_info(link_to_book):
+        """return page with book info in lxml format"""
         check_success = False
         while check_success is False:
             try:
@@ -123,6 +134,7 @@ class BaseSiteScraper:
         return page_with_book_info
 
     def __get_books_info(self, pages_with_book_info):
+        """return all info about books"""
         async_loop = asyncio.get_event_loop()
         coroutines = [
             self._get_book_info(page_with_book_info)
@@ -134,6 +146,7 @@ class BaseSiteScraper:
         return books_info
 
     async def _get_book_info(self, page_with_book_info):
+        """return definite book info"""
         try:
             author = page_with_book_info.find(
                 self.AUTHOR_ELEMENT, itemprop=self.AUTHOR_SELECTOR

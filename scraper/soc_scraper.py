@@ -1,3 +1,4 @@
+"""file for control social media scraper and his specification"""
 import requests
 from .scraper_settings import (
     soc_scraper_link,
@@ -12,6 +13,7 @@ from .scraper_settings import (
 
 
 class SocScraper:
+    """Class for social media scraper"""
 
     LINK_TO_SITE = None
 
@@ -19,6 +21,7 @@ class SocScraper:
         self.__scraper_number = scraper_number
 
     def start_parse(self, search_query):
+        """start scraping process"""
         self.__set_link_to_site(search_query)
         posts = self.__get_posts()
         books_info = self.__get_books_info(posts)
@@ -26,6 +29,7 @@ class SocScraper:
         return books_info
 
     def __set_link_to_site(self, search_query):
+        """set link to page for scraping chosen source"""
         if self.__scraper_number == 4:
             self.LINK_TO_SITE = str(
                 soc_scraper_link
@@ -70,12 +74,14 @@ class SocScraper:
             )
 
     def __get_posts(self):
+        """return posts which contains search query"""
         posts = requests.get(self.LINK_TO_SITE).json()
 
         return posts
 
     @staticmethod
     def __get_books_info(posts):
+        """return all books info from posts"""
         books_info = []
 
         for post_number in range(1000):

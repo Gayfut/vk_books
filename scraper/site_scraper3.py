@@ -1,8 +1,10 @@
+"""file for control SiteScraper3 and his specification"""
 from .base_site_scraper import BaseSiteScraper
 from .scraper_settings import scraper3_search_fragment
 
 
 class SiteScraper3(BaseSiteScraper):
+    """Class for 3 site scraper"""
 
     LINK_TO_SITE = None
     LINK_TO_SEARCH_PAGE = None
@@ -22,6 +24,7 @@ class SiteScraper3(BaseSiteScraper):
         self._scraper_number = 3
 
     def _set_link_to_site(self, search_query, language):
+        """set link to scraping site"""
         search_query = SiteScraper3._get_correct_search_query(search_query)
 
         self.LINK_TO_SEARCH_PAGE = str(
@@ -29,6 +32,7 @@ class SiteScraper3(BaseSiteScraper):
         )
 
     def _get_books_elements(self, search_page):
+        """return books elements from scraping page"""
         books_elements = search_page.find_all(
             self.BOOK_POST_ELEMENT, class_=self.BOOK_POST_SELECTOR
         )
@@ -36,6 +40,7 @@ class SiteScraper3(BaseSiteScraper):
         return books_elements
 
     def _get_links_to_books(self, books_elements):
+        """return links to books from elements for scraping info"""
         links_of_books = []
 
         for book_element in books_elements:
@@ -46,6 +51,7 @@ class SiteScraper3(BaseSiteScraper):
         return links_of_books
 
     async def _get_book_info(self, page_with_book_info):
+        """return definite book info"""
         try:
             author = page_with_book_info.find(
                 self.AUTHOR_ELEMENT, class_=self.AUTHOR_SELECTOR

@@ -1,3 +1,4 @@
+"""file for control SiteScraper1 and his specification"""
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,6 +14,7 @@ from .scraper_settings import (
 
 
 class SiteScraper1(BaseSiteScraper):
+    """Class for 1 site scraper"""
 
     LINK_TO_SITE = None
     LINK_TO_SEARCH_PAGE = None
@@ -32,6 +34,7 @@ class SiteScraper1(BaseSiteScraper):
         self._scraper_number = 1
 
     def _set_link_to_site(self, search_query, language):
+        """set link to scraping site"""
         response = requests.get(link_to_site_temporary1)
 
         scraper_result = BeautifulSoup(response.text, "lxml")
@@ -58,6 +61,7 @@ class SiteScraper1(BaseSiteScraper):
             )
 
     def _get_books_elements(self, search_page):
+        """return books elements from scraping page"""
         books_elements = search_page.find_all(
             self.BOOK_POST_ELEMENT, style=self.BOOK_POST_SELECTOR
         )
